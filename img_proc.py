@@ -1,10 +1,10 @@
 import cv2
 
-image = cv2.imread('uia.webp')
+image = cv2.imread('photos/horseman.webp')
 
-kernel = [[-1, -1, -1],
-          [-1,  8, -1],
-          [-1, -1, -1]]
+kernel = [[1, 1, 1],
+          [1, 1, 1],
+          [1, 1, 1]]
 
 def gray(image):
     for i in range(image.shape[0]):
@@ -24,26 +24,30 @@ def threshold(image, threshold):
                 image[i][j] = [0, 0, 0]
                 
 def filter(image, kernel):
+    avg = sum(map(sum, kernel))
+    if avg == 0: avg = 1
+    
     for i in range (1, image.shape[0] - 1):
         for j in range(1, image.shape[1] - 1):
             total = 0
-            avg = sum(map(sum, kernel))
-            if avg == 0: avg = 1
+            
             for k in range(3):
                 for l in range(3):
                     r, g, b = image[i + k - 1][j + l - 1]
                     pixel = int(0.299 * r + 0.587 * g + 0.114 * b)
                     total += pixel * kernel[k][l]
-            image[i][j] = [total // avg, total // avg, total // avg]
-                
-            
+                    
+            value = total // avg
+            if value < 0: value = 0
+            if value > 255: value = 255
+            image[i][j] = [value, value, value]
 
 
 gray(image)
-cv2.imwrite('gray.webp', image)
+#cv2.imwrite('photos/horseman_gray.webp', image)
 
 #threshold(image, 100)
-#cv2.imwrite('threshold.webp', image)
+#cv2.imwrite('photos/horseman_threshold.webp', image)
 
 filter(image, kernel)
-cv2.imwrite('filter.webp', image)
+cv2.imwrite('photos/horseman_filter.webp', image)
